@@ -40,18 +40,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AuthApp() {
-    // Manual DI - create dependencies
     val otpManager = OtpManager()
     val analyticsLogger = TimberLogger()
     
-    // Create ViewModel with dependencies
     val viewModel: AuthViewModel = viewModel(
         factory = AuthViewModelFactory(otpManager, analyticsLogger)
     )
     
     val authState by viewModel.authState.collectAsState()
     
-    // Navigate based on state
     when (val state = authState) {
         is AuthState.Idle -> {
             LoginScreen(
@@ -82,8 +79,6 @@ fun AuthApp() {
         }
         
         is AuthState.OtpError -> {
-            // Determine which screen to show based on previous state
-            // For simplicity, show login screen with error
             LoginScreen(
                 onSendOtp = { email -> viewModel.sendOtp(email) },
                 isLoading = false,

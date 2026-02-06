@@ -9,10 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * ViewModel managing authentication logic
- * Handles OTP generation, validation, and session management
- */
 class AuthViewModel(
     private val otpManager: OtpManager,
     private val analyticsLogger: AnalyticsLogger
@@ -21,16 +17,10 @@ class AuthViewModel(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
     
-    /**
-     * Validate email format
-     */
     fun isValidEmail(email: String): Boolean {
         return email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
     
-    /**
-     * Generate and send OTP for the given email
-     */
     fun sendOtp(email: String) {
         if (!isValidEmail(email)) {
             _authState.value = AuthState.OtpError("Invalid email address")
@@ -43,12 +33,7 @@ class AuthViewModel(
             val otp = otpManager.generateOtp(email)
             val expiryTime = System.currentTimeMillis() + 60_000
             
-            // Log analytics event
             analyticsLogger.logOtpGenerated(email)
-            
-            // In a real app, you would send OTP via email/SMS here
-            // For this assignment, we just log it
-            println("🔐 OTP for $email: $otp")
             
             _authState.value = AuthState.OtpSent(email, expiryTime)
         } catch (e: Exception) {
@@ -56,9 +41,6 @@ class AuthViewModel(
         }
     }
     
-    /**
-     * Validate OTP entered by user
-     */
     fun validateOtp(email: String, inputOtp: String) {
         if (inputOtp.length != 6) {
             _authState.value = AuthState.OtpError("OTP must be 6 digits")
@@ -97,16 +79,10 @@ class AuthViewModel(
         }
     }
     
-    /**
-     * Get remaining time for OTP in seconds
-     */
     fun getRemainingTime(email: String): Long? {
         return otpManager.getRemainingTime(email)?.let { it / 1000 }
     }
     
-    /**
-     * Logout user
-     */
     fun logout() {
         val currentState = _authState.value
         if (currentState is AuthState.Authenticated) {
@@ -116,9 +92,6 @@ class AuthViewModel(
         _authState.value = AuthState.Idle
     }
     
-    /**
-     * Reset to idle state
-     */
     fun resetToIdle() {
         _authState.value = AuthState.Idle
     }

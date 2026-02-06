@@ -1,9 +1,5 @@
 package com.example.lokalassignment.viewmodel
 
-/**
- * Sealed class representing the authentication state
- * Provides type-safe state management for the UI
- */
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()

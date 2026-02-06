@@ -6,9 +6,6 @@ import com.example.lokalassignment.analytics.AnalyticsLogger
 import com.example.lokalassignment.data.OtpManager
 import com.example.lokalassignment.viewmodel.AuthViewModel
 
-/**
- * Factory for creating AuthViewModel with dependencies
- */
 class AuthViewModelFactory(
     private val otpManager: OtpManager,
     private val analyticsLogger: AnalyticsLogger
