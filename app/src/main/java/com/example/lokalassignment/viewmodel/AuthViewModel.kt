@@ -8,6 +8,7 @@ import com.example.lokalassignment.data.ValidationResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 
 class AuthViewModel(
     private val otpManager: OtpManager,
@@ -33,7 +34,7 @@ class AuthViewModel(
             val otp = otpManager.generateOtp(email)
             val expiryTime = System.currentTimeMillis() + 60_000
             
-            analyticsLogger.logOtpGenerated(email)
+            analyticsLogger.logOtpGenerated(email, otp)
             
             _authState.value = AuthState.OtpSent(email, expiryTime)
         } catch (e: Exception) {

@@ -4,8 +4,8 @@ import timber.log.Timber
 
 class TimberLogger : AnalyticsLogger {
     
-    override fun logOtpGenerated(email: String) {
-        Timber.d("OTP Generated for: $email")
+    override fun logOtpGenerated(email: String, otp: String) {
+        Timber.d("OTP Generated for: $email | OTP: $otp")
     }
     
     override fun logOtpValidationSuccess(email: String) {
