@@ -79,11 +79,25 @@ fun AuthApp() {
         }
         
         is AuthState.OtpError -> {
-            LoginScreen(
-                onSendOtp = { email -> viewModel.sendOtp(email) },
-                isLoading = false,
-                errorMessage = state.message
-            )
+            if (state.email.isNotEmpty() && state.expiryTime > 0) {
+                // Stay on OTP screen if we have email and expiryTime
+                OtpScreen(
+                    email = state.email,
+                    expiryTime = state.expiryTime,
+                    onValidateOtp = { email, otp -> viewModel.validateOtp(email, otp) },
+                    onResendOtp = { email -> viewModel.sendOtp(email) },
+                    isLoading = false,
+                    errorMessage = state.message,
+                    attemptsRemaining = state.attemptsRemaining
+                )
+            } else {
+                // Go back to login screen if no context
+                LoginScreen(
+                    onSendOtp = { email -> viewModel.sendOtp(email) },
+                    isLoading = false,
+                    errorMessage = state.message
+                )
+            }
         }
         
         is AuthState.Authenticated -> {

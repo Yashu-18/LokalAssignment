@@ -43,8 +43,19 @@ class AuthViewModel(
     }
     
     fun validateOtp(email: String, inputOtp: String) {
+        val currentState = _authState.value
+        val expiryTime = when (currentState) {
+            is AuthState.OtpSent -> currentState.expiryTime
+            is AuthState.OtpError -> currentState.expiryTime
+            else -> System.currentTimeMillis() + 60_000
+        }
+        
         if (inputOtp.length != 6) {
-            _authState.value = AuthState.OtpError("OTP must be 6 digits")
+            _authState.value = AuthState.OtpError(
+                message = "OTP must be 6 digits",
+                email = email,
+                expiryTime = expiryTime
+            )
             return
         }
         
@@ -62,20 +73,34 @@ class AuthViewModel(
                 analyticsLogger.logOtpValidationFailure(email, "Invalid OTP")
                 _authState.value = AuthState.OtpError(
                     message = "Invalid OTP. ${result.attemptsRemaining} attempts remaining.",
+                    email = email,
+                    expiryTime = expiryTime,
                     attemptsRemaining = result.attemptsRemaining
                 )
             }
             is ValidationResult.Expired -> {
                 analyticsLogger.logOtpValidationFailure(email, "OTP Expired")
-                _authState.value = AuthState.OtpError("OTP has expired. Please request a new one.")
+                _authState.value = AuthState.OtpError(
+                    message = "OTP has expired. Please request a new one.",
+                    email = email,
+                    expiryTime = expiryTime
+                )
             }
             is ValidationResult.AttemptsExhausted -> {
                 analyticsLogger.logOtpValidationFailure(email, "Attempts Exhausted")
-                _authState.value = AuthState.OtpError("Maximum attempts exceeded. Please request a new OTP.")
+                _authState.value = AuthState.OtpError(
+                    message = "Maximum attempts exceeded. Please request a new OTP.",
+                    email = email,
+                    expiryTime = expiryTime
+                )
             }
             is ValidationResult.NoOtpFound -> {
                 analyticsLogger.logOtpValidationFailure(email, "No OTP Found")
-                _authState.value = AuthState.OtpError("No OTP found. Please request a new one.")
+                _authState.value = AuthState.OtpError(
+                    message = "No OTP found. Please request a new one.",
+                    email = email,
+                    expiryTime = expiryTime
+                )
             }
         }
     }

@@ -19,11 +19,14 @@ fun OtpScreen(
     errorMessage: String?,
     attemptsRemaining: Int
 ) {
-    var otp by remember { mutableStateOf(TextFieldValue("")) }
-    var remainingSeconds by remember { mutableStateOf(60) }
+    var otp by remember(expiryTime) { mutableStateOf(TextFieldValue("")) }
+    var remainingSeconds by remember(expiryTime) { 
+        mutableStateOf(((expiryTime - System.currentTimeMillis()) / 1000).toInt().coerceAtLeast(0)) 
+    }
     
     // Countdown timer
     LaunchedEffect(expiryTime) {
+        remainingSeconds = ((expiryTime - System.currentTimeMillis()) / 1000).toInt().coerceAtLeast(0)
         while (remainingSeconds > 0) {
             delay(1000)
             val remaining = (expiryTime - System.currentTimeMillis()) / 1000
@@ -99,7 +102,7 @@ fun OtpScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
-            enabled = !isLoading && otp.text.length == 6 && remainingSeconds > 0
+            enabled = !isLoading && otp.text.length == 6
         ) {
             if (isLoading) {
                 CircularProgressIndicator(

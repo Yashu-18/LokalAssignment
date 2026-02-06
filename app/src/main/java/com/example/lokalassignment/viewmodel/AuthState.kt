@@ -11,6 +11,8 @@ sealed class AuthState {
     
     data class OtpError(
         val message: String,
+        val email: String = "",
+        val expiryTime: Long = 0L,
         val attemptsRemaining: Int = 0
     ) : AuthState()
     
